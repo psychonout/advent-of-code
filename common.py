@@ -8,23 +8,24 @@ def from_file(filename):
     if not os.path.exists(filename):
         return None
 
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf-8") as f:
         print(f"Returning from file: {filename}")
         return f.read()
 
 
 def download_input(day: int, year: int) -> str:
     filename = f"inputs/{year}/input-{day}.txt"
-    if from_file(filename):
-        return from_file(filename)
+    data = from_file(filename)
+    if data:
+        return data
 
     url = f"https://adventofcode.com/{year}/day/{day}/input"
-    session = "53616c7465645f5ff2a38047bd2c4bb69793cce92fc9a9e1bdf78140b998c0dc7d19b62335cf60e5524c910ea173f85a9868ce66e9b26d741a9eaf169873561e"
+    session = "53616c7465645f5f62c4f773983f52e5d476eb24d9ea4e7fca4937da5f35b65b1044619e60e68cceae97e4cf142e024bae6aba793fe6823bee60a6aa18de5c52"
     cookies = {"session": session}
 
     response = requests.get(url, cookies=cookies)
 
-    with open(filename, "w") as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(response.text)
 
     return response.text
