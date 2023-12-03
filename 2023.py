@@ -246,5 +246,31 @@ def day_3():
     return part_two()
 
 
+def day_4():
+    data = download_input(4, 2023).splitlines()
+
+    def part_one():
+        pass
+
+    def part_two():
+        pass
+
+    return part_one()
+    # return part_two()
+
+
+def day_5():
+    data = download_input(5, 2023).splitlines()
+
+    def part_one():
+        pass
+
+    def part_two():
+        pass
+
+    return part_one()
+    # return part_two()
+
+
 if __name__ == "__main__":
-    print(day_3())
+    print(day_4())
