@@ -2,6 +2,9 @@ import os
 from typing import Generator
 
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def from_file(filename):
@@ -20,10 +23,9 @@ def download_input(day: int, year: int) -> str:
         return data
 
     url = f"https://adventofcode.com/{year}/day/{day}/input"
-    session = "53616c7465645f5f62c4f773983f52e5d476eb24d9ea4e7fca4937da5f35b65b1044619e60e68cceae97e4cf142e024bae6aba793fe6823bee60a6aa18de5c52"
-    cookies = {"session": session}
+    cookies = {"session": os.environ["AOC_SESSION"]}
 
-    response = requests.get(url, cookies=cookies)
+    response = requests.get(url, cookies=cookies, timeout=5)
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(response.text)
