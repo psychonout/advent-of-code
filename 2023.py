@@ -131,5 +131,120 @@ def day_2():
     return part_two()
 
 
+def day_3():
+    data = download_input(3, 2023).splitlines()
+
+    logger.debug(len(data))
+
+    def log_lines(i):
+        try:
+            logger.debug(f"line {i-1}: {data[i-1]}")
+        except IndexError:
+            pass
+        logger.debug(f"line {i}: {data[i]}")
+        try:
+            logger.debug(f"line {i+1}: {data[i+1]}")
+        except IndexError:
+            pass
+
+    def part_one():
+        sum_of_part_numbers = 0
+        for i, line in enumerate(data):
+            # line = line.replace(".", )
+            part_number = ""
+            is_part_number = False
+
+            if line[-1].isnumeric():
+                log_lines(i)
+
+            for j, char in enumerate(line):
+                if char.isnumeric():
+                    part_number += char
+                    indices_to_check = [
+                        (i - 1, j - 1),  # top left
+                        (i - 1, j),  # top
+                        (i - 1, j + 1),  # top right
+                        (i, j - 1),  # left
+                        (i, j + 1),  # right
+                        (i + 1, j - 1),  # bottom left
+                        (i + 1, j),  # bottom
+                        (i + 1, j + 1),  # bottom right
+                    ]
+                    for index in indices_to_check:
+                        try:
+                            if (
+                                data[index[0]][index[1]] != "."
+                                and not data[index[0]][index[1]].isnumeric()
+                            ):
+                                logger.debug(
+                                    f"found {data[index[0]][index[1]]} at i{index[0]}:j{index[1]}"
+                                )
+                                is_part_number = True
+                                break
+                        except IndexError:
+                            pass
+
+                if part_number != "" and (not char.isnumeric() or j == len(line) - 1):
+                    if is_part_number:
+                        logger.debug(f"part number: {part_number}")
+                        sum_of_part_numbers += int(part_number)
+                    part_number = ""
+                    is_part_number = False
+
+        return sum_of_part_numbers
+
+    def part_two():
+        parts_with_star = {}  # {star_coordinates: [part_numbers]}
+        for i, line in enumerate(data):
+            # line = line.replace(".", )
+            part_number = ""
+            star_coordinates = None
+
+            if line[-1].isnumeric():
+                log_lines(i)
+
+            for j, char in enumerate(line):
+                if char.isnumeric():
+                    part_number += char
+                    indices_to_check = [
+                        (i - 1, j - 1),  # top left
+                        (i - 1, j),  # top
+                        (i - 1, j + 1),  # top right
+                        (i, j - 1),  # left
+                        (i, j + 1),  # right
+                        (i + 1, j - 1),  # bottom left
+                        (i + 1, j),  # bottom
+                        (i + 1, j + 1),  # bottom right
+                    ]
+                    for index in indices_to_check:
+                        try:
+                            if data[index[0]][index[1]] == "*":
+                                star_coordinates = f"{index[0]}{index[1]}"
+                                if star_coordinates not in parts_with_star:
+                                    parts_with_star[star_coordinates] = []
+                                break
+                        except IndexError:
+                            pass
+
+                if part_number != "" and (not char.isnumeric() or j == len(line) - 1):
+                    if star_coordinates:
+                        logger.debug(f"part number: {part_number}")
+                        parts_with_star[star_coordinates].append(int(part_number))
+                    part_number = ""
+                    star_coordinates = None
+
+        relevant_part_multiplications = []
+
+        for part_numbers in parts_with_star.values():
+            if len(part_numbers) == 1:
+                continue
+
+            relevant_part_multiplications.append(part_numbers[0] * part_numbers[1])
+        return sum(relevant_part_multiplications)
+
+    # return part_one()
+    return part_two()
+
+
 if __name__ == "__main__":
-    print(day_2())
+    print(day_3())
