@@ -258,7 +258,9 @@ def day_7():
 
     while instructions:
         iteration += 1
-        print(f"{iteration}. Number of instructions: {len(instructions)} Number of addresses: {len(addresses)}")
+        print(
+            f"{iteration}. Number of instructions: {len(instructions)} Number of addresses: {len(addresses)}"
+        )
 
         used_instructions = []
         for line in instructions:
@@ -300,7 +302,9 @@ def day_7():
                     elif ld[1] == "RSHIFT":
                         addresses[ld[-1]] = addresses[ld[0]] >> int(ld[2])
                     used_instructions.append(line)
-                elif ld[1] in ["AND", "OR"] and ld[0] in addresses and ld[2] in addresses:
+                elif (
+                    ld[1] in ["AND", "OR"] and ld[0] in addresses and ld[2] in addresses
+                ):
                     if ld[1] == "AND":
                         addresses[ld[-1]] = addresses[ld[0]] & addresses[ld[2]]
                     elif ld[1] == "OR":
@@ -317,7 +321,7 @@ def day_7():
                         if ld[1] == "AND":
                             addresses[ld[-1]] = addresses[ld[0]] & second_int
                         elif ld[1] == "OR":
-                            addresses[ld[-1]] = addresses[ld[2]] | second_int 
+                            addresses[ld[-1]] = addresses[ld[2]] | second_int
                         used_instructions.append(line)
                 else:
                     print(ld)
@@ -325,7 +329,6 @@ def day_7():
         pprint(addresses)
 
         instructions = set(instructions).difference(set(used_instructions))
-
 
         # for address in addresses:
         #     if address in ld and line not in used_instructions:
@@ -339,10 +342,41 @@ def day_8():
         # part one
         # result += len(line) - len(eval(line))
         # part two
-        result += line.count('\\') + line.count('"') + 2
+        result += line.count("\\") + line.count('"') + 2
 
     return result
 
 
+def day_9():
+    data = download_input(9, 2015).strip().splitlines()
+    print(data)
+
+    # def find_route(start, routes):
+    #     lowest_distance = 0
+    #     for route in routes:
+    #         if route[1] == start:
+    #             return route
+
+    cities = []
+    routes = []  # (distance, start, end)
+
+    for line in data:
+        start, end = line.split(" to ")
+        end = end.split(" ")[0]
+        distance = int(line.split(" = ")[-1])
+        if start not in cities:
+            cities.append(start)
+        if end not in cities:
+            cities.append(end)
+        routes.append((distance, start, end))
+
+    cities.reverse()
+
+    for city in cities:
+        for route in routes:
+            if route[2] == city:
+                
+
+
 if __name__ == "__main__":
-    print(day_8())
+    day_9()
