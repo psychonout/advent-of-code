@@ -250,13 +250,68 @@ def day_4():
     data = download_input(4, 2023).splitlines()
 
     def part_one():
-        pass
+        total_points = 0
+        for line in data:
+            winning_numbers, card_numbers = line.split(" | ")
+            winning_numbers = winning_numbers.split(": ")[1].strip()
+
+            winning_numbers = [int(number.strip()) for number in winning_numbers.split(" ") if number.strip() != ""]
+            card_numbers = [int(number.strip()) for number in card_numbers.split(" ") if number.strip() != ""]
+
+            matched_numbers = set(winning_numbers).intersection(set(card_numbers))
+
+            card_points = 0
+
+            for index in range(len(matched_numbers)):
+                if index == 0:
+                    card_points = 1
+                else:
+                    card_points *= 2
+
+            total_points += card_points
+        logger.info(f"Total points: {total_points}")
+        return total_points
 
     def part_two():
-        pass
+        last_card = data[-1].split(": ")[0]
 
-    return part_one()
-    # return part_two()
+        scratchcards = {}
+
+        for line in reversed(data):
+            winning_numbers, card_numbers = line.split(" | ")
+            card, winning_numbers = winning_numbers.split(": ")
+
+            winning_numbers = [int(number.strip()) for number in winning_numbers.split(" ") if number.strip() != ""]
+            card_numbers = [int(number.strip()) for number in card_numbers.split(" ") if number.strip() != ""]
+            matched_numbers = set(winning_numbers).intersection(set(card_numbers))
+            logger.debug(f"{card} matched {matched_numbers}")
+
+            if card not in scratchcards:
+                scratchcards[card] = {
+                    "copies": 1,
+                    # "winning_numbers": winning_numbers,
+                    # "card_numbers": card_numbers,
+                    "matched_numbers": matched_numbers,
+                }
+
+        ordered_dict_keys = dict(sorted(scratchcards.items())).keys()
+
+        for card in ordered_dict_keys:
+            card_number = int(card.replace("   ", " ").replace("  ", " ").split(" ")[1])
+            logger.debug(f"{card} has {scratchcards[card]['copies']} copies")
+            for order, __ in enumerate(scratchcards[card]["matched_numbers"]):
+                card_copy = f"Card {card_number + order+1:>3}"
+                if card_copy > last_card:
+                    continue
+                for _ in range(scratchcards[card]["copies"]):
+                    # logger.debug(f"Adding a copy of {card_copy}")
+                    scratchcards[card_copy]["copies"] += 1
+
+        # logger.debug(pformat(scratchcards))
+        return sum([card["copies"] for card in scratchcards.values()])
+
+    return part_two()
+    # return part_one()
 
 
 def day_5():
@@ -264,7 +319,17 @@ def day_5():
 
     def part_one():
         pass
+    def part_two():
+        pass
 
+    return part_one()
+    # return part_two()
+
+def day_6():
+    data = download_input(5, 2023).splitlines()
+
+    def part_one():
+        pass
     def part_two():
         pass
 
@@ -273,4 +338,4 @@ def day_5():
 
 
 if __name__ == "__main__":
-    print(day_4())
+    logger.warning(day_5())

@@ -1,6 +1,6 @@
 import os
 from typing import Generator
-
+from loguru import logger
 import requests
 from dotenv import load_dotenv
 
@@ -12,7 +12,7 @@ def from_file(filename):
         return None
 
     with open(filename, "r", encoding="utf-8") as f:
-        print(f"Returning from file: {filename}")
+        logger.debug(f"Returning from file: {filename}")
         return f.read()
 
 
