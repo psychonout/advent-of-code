@@ -16,8 +16,10 @@ def from_file(filename):
         return f.read()
 
 
-def download_input(day: int, year: int) -> str:
+def download_input(day: int, year: int, test=False) -> str:
     filename = f"inputs/{year}/input-{day}.txt"
+    if test:
+        filename += ".test"
     data = from_file(filename)
     if data:
         return data

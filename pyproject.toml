@@ -2,8 +2,7 @@
 name = "advent-of-code"
 version = "0.1.0"
 description = ""
-authors = ["Donatas <donatas.gostautas@gjensidige.no>"]
-readme = "README.md"
+authors = ["Donatas <donatas@gostautas.no>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"

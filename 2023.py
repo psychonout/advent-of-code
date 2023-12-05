@@ -332,108 +332,103 @@ def day_4():
 
 def day_5():
     data = download_input(5, 2023)
-    # print(repr(data))
     data = data.split("\n\n")
-    # print(repr(data))
-    # logger.debug(len(data))
-    # logger.debug(data)
+    maps = {}
+    seeds = []
 
     def map_as_dict(items):
         locations = []
         for line in items.strip().splitlines():
-            # logger.debug(line)
-            locations.append([int(element) for element in line.strip().split(" ")])
+            range_line = [int(element) for element in line.strip().split(" ")]
+            range_line[-1] = range_line[-1] - 1
+            locations.append(tuple(range_line))
         return locations
 
-    def part_one():
-        maps = {}
-        seeds = []
-        seed_locations = []
+    for line in data:
+        category, items = line.split(":")
+        if category == "seeds":
+            seeds = [int(item.strip()) for item in items.strip().split(" ")]
+        else:
+            maps[category] = map_as_dict(items)
 
-        for line in data:
-            category, items = line.split(":")
-            if category == "seeds":
-                seeds = [int(item.strip()) for item in items.strip().split(" ")]
-            else:
-                maps[category] = map_as_dict(items)
+    logger.debug(seeds)
+    logger.debug(maps)
+
+    def part_one():
+        seed_locations = []
 
         for seed in seeds:
             floating_seed = seed
             for map_key, map_values in maps.items():
-                # logger.debug(f"{map_key}")
-                for location in map_values:
-                    item_first, item_second, interval = location
-
-                    # logger.debug(f"looking for {floating_seed} in {item_first}:{item_first+interval}")
-
-                    if (
-                        floating_seed >= item_second
-                        and floating_seed <= item_second + interval
-                    ):
-                        logger.debug(
-                            f"found {floating_seed} {map_key} {item_first} {item_second} {interval}"
-                        )
-                        logger.debug(f"{floating_seed} now")
-                        offset = floating_seed - item_second
-                        logger.debug(f"{offset}")
-                        floating_seed = item_first + offset
-                        logger.debug(f"{floating_seed} after")
-
-                        if map_key == "humidity-to-location map":
-                            seed_locations.append(floating_seed)
+                logger.debug(f"looking {floating_seed} {map_key}")
+                for target, source, interval in map_values:
+                    if floating_seed > source and floating_seed <= source + interval:
+                        offset = floating_seed - source
+                        floating_seed = target + offset
                         break
+
+                if "humidity-to-location" in map_key:
+                    seed_locations.append(floating_seed)
 
         return min(seed_locations)
 
     def part_two():
-        maps = {}
-        seeds = []
         seed_locations = []
+        seed_pairs = [
+            (seeds[i], seeds[i] + seeds[i + 1] - 1) for i in range(0, len(seeds), 2)
+        ]
 
-        for line in data:
-            category, items = line.split(":")
-            if category == "seeds":
-                items = items.strip().split(" ")
-                items = [int(item) for item in items]
-                for i in range(0, len(items), 2):
-                    seeds.append(
-                        (int(items[i] + (items[i + 1] / 2)), int(items[i + 1] / 2))
-                    )
-            else:
-                maps[category] = map_as_dict(items)
+        for seed in seed_pairs:
+            current_stage = [seed]
+            logger.debug(f"{current_stage}")
+            next_stage = []
 
-        for seed in seeds:
-            floating_seeds = [seed[0], seed[0] + seed[1], seed[0] - seed[1]]
             for map_key, map_values in maps.items():
-                new_floating_seeds = floating_seeds
-                for location in map_values:
-                    item_first, item_second, interval = location
-                    for index, floating_seed in enumerate(floating_seeds):
-                        if (
-                            floating_seed >= item_second
-                            and floating_seed <= item_second + interval
-                        ):
-                            logger.debug(
-                                f"found {floating_seed} {map_key} {item_first} {item_second} {interval}"
+                # logger.debug(map_key)
+                while current_stage:
+                    # using while because floating point works as a queue
+                    first_seed, last_seed = current_stage.pop()
+                    for location in map_values:
+                        target, source, interval = location
+                        if last_seed < source or source + interval <= first_seed:
+                            # no overlap of ranges
+                            continue
+                        elif source <= first_seed <= last_seed < source + interval:
+                            # the whole range of seeds fits inside the source range
+                            offset = first_seed - source
+                            next_stage.append(
+                                (
+                                    target + offset,
+                                    target + offset + last_seed - first_seed,
+                                )
                             )
-                            logger.debug(f"{floating_seed} now")
-                            offset = floating_seed - item_second
-                            logger.debug(f"{offset}")
-                            floating_seed = item_first + offset
-                            logger.debug(f"{floating_seed} after")
-                            if index == 0:
-                                new_floating_seeds.append(floating_seed)
-                            elif index == 1:
-                                new_floating_seeds.append(floating_seed + seed[1])
-                            elif index == 2:
-                                new_floating_seeds.append(floating_seed - seed[1])
-
-                            if map_key == "humidity-to-location map":
-                                seed_locations.append(floating_seed)
                             break
-                    floating_seeds = new_floating_seeds
+                        elif first_seed < source <= last_seed < source + interval:
+                            #  some part of lower seeds don't fit into the source range
+                            offset = last_seed - source
+                            next_stage.append((target, target + offset))
+                            current_stage.append((first_seed, source - 1))
+                            break
+                        elif source <= first_seed < source + interval <= last_seed:
+                            # some of the upper seeds go beyond the source range
+                            offset = first_seed - source
+                            next_stage.append((target + offset, target + interval))
+                            current_stage.append((source + interval, last_seed))
+                            break
+                        elif first_seed < source <= source + interval <= last_seed:
+                            # whole range of source fits inside seed range
+                            next_stage.append((target, target + interval))
+                            current_stage.append((first_seed, source - 1))
+                            current_stage.append((source + interval, last_seed))
+                            break
+                    else:
+                        next_stage.append((first_seed, last_seed))
+                current_stage = next_stage
+                next_stage = []
 
-        return min(seed_locations)
+            seed_locations.extend(current_stage)
+
+        return min(i[0] for i in seed_locations)
 
     # return part_one()
     return part_two()
