@@ -255,8 +255,16 @@ def day_4():
             winning_numbers, card_numbers = line.split(" | ")
             winning_numbers = winning_numbers.split(": ")[1].strip()
 
-            winning_numbers = [int(number.strip()) for number in winning_numbers.split(" ") if number.strip() != ""]
-            card_numbers = [int(number.strip()) for number in card_numbers.split(" ") if number.strip() != ""]
+            winning_numbers = [
+                int(number.strip())
+                for number in winning_numbers.split(" ")
+                if number.strip() != ""
+            ]
+            card_numbers = [
+                int(number.strip())
+                for number in card_numbers.split(" ")
+                if number.strip() != ""
+            ]
 
             matched_numbers = set(winning_numbers).intersection(set(card_numbers))
 
@@ -281,8 +289,16 @@ def day_4():
             winning_numbers, card_numbers = line.split(" | ")
             card, winning_numbers = winning_numbers.split(": ")
 
-            winning_numbers = [int(number.strip()) for number in winning_numbers.split(" ") if number.strip() != ""]
-            card_numbers = [int(number.strip()) for number in card_numbers.split(" ") if number.strip() != ""]
+            winning_numbers = [
+                int(number.strip())
+                for number in winning_numbers.split(" ")
+                if number.strip() != ""
+            ]
+            card_numbers = [
+                int(number.strip())
+                for number in card_numbers.split(" ")
+                if number.strip() != ""
+            ]
             matched_numbers = set(winning_numbers).intersection(set(card_numbers))
             logger.debug(f"{card} matched {matched_numbers}")
 
@@ -315,21 +331,120 @@ def day_4():
 
 
 def day_5():
-    data = download_input(5, 2023).splitlines()
+    data = download_input(5, 2023)
+    # print(repr(data))
+    data = data.split("\n\n")
+    # print(repr(data))
+    # logger.debug(len(data))
+    # logger.debug(data)
+
+    def map_as_dict(items):
+        locations = []
+        for line in items.strip().splitlines():
+            # logger.debug(line)
+            locations.append([int(element) for element in line.strip().split(" ")])
+        return locations
 
     def part_one():
-        pass
-    def part_two():
-        pass
+        maps = {}
+        seeds = []
+        seed_locations = []
 
-    return part_one()
-    # return part_two()
+        for line in data:
+            category, items = line.split(":")
+            if category == "seeds":
+                seeds = [int(item.strip()) for item in items.strip().split(" ")]
+            else:
+                maps[category] = map_as_dict(items)
+
+        for seed in seeds:
+            floating_seed = seed
+            for map_key, map_values in maps.items():
+                # logger.debug(f"{map_key}")
+                for location in map_values:
+                    item_first, item_second, interval = location
+
+                    # logger.debug(f"looking for {floating_seed} in {item_first}:{item_first+interval}")
+
+                    if (
+                        floating_seed >= item_second
+                        and floating_seed <= item_second + interval
+                    ):
+                        logger.debug(
+                            f"found {floating_seed} {map_key} {item_first} {item_second} {interval}"
+                        )
+                        logger.debug(f"{floating_seed} now")
+                        offset = floating_seed - item_second
+                        logger.debug(f"{offset}")
+                        floating_seed = item_first + offset
+                        logger.debug(f"{floating_seed} after")
+
+                        if map_key == "humidity-to-location map":
+                            seed_locations.append(floating_seed)
+                        break
+
+        return min(seed_locations)
+
+    def part_two():
+        maps = {}
+        seeds = []
+        seed_locations = []
+
+        for line in data:
+            category, items = line.split(":")
+            if category == "seeds":
+                items = items.strip().split(" ")
+                items = [int(item) for item in items]
+                for i in range(0, len(items), 2):
+                    seeds.append(
+                        (int(items[i] + (items[i + 1] / 2)), int(items[i + 1] / 2))
+                    )
+            else:
+                maps[category] = map_as_dict(items)
+
+        for seed in seeds:
+            floating_seeds = [seed[0], seed[0] + seed[1], seed[0] - seed[1]]
+            for map_key, map_values in maps.items():
+                new_floating_seeds = floating_seeds
+                for location in map_values:
+                    item_first, item_second, interval = location
+                    for index, floating_seed in enumerate(floating_seeds):
+                        if (
+                            floating_seed >= item_second
+                            and floating_seed <= item_second + interval
+                        ):
+                            logger.debug(
+                                f"found {floating_seed} {map_key} {item_first} {item_second} {interval}"
+                            )
+                            logger.debug(f"{floating_seed} now")
+                            offset = floating_seed - item_second
+                            logger.debug(f"{offset}")
+                            floating_seed = item_first + offset
+                            logger.debug(f"{floating_seed} after")
+                            if index == 0:
+                                new_floating_seeds.append(floating_seed)
+                            elif index == 1:
+                                new_floating_seeds.append(floating_seed + seed[1])
+                            elif index == 2:
+                                new_floating_seeds.append(floating_seed - seed[1])
+
+                            if map_key == "humidity-to-location map":
+                                seed_locations.append(floating_seed)
+                            break
+                    floating_seeds = new_floating_seeds
+
+        return min(seed_locations)
+
+    # return part_one()
+    return part_two()
+
 
 def day_6():
     data = download_input(5, 2023).splitlines()
 
     def part_one():
         pass
+
     def part_two():
         pass
 
