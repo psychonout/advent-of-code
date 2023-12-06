@@ -435,7 +435,54 @@ def day_5():
 
 
 def day_6():
-    data = download_input(5, 2023).splitlines()
+    data = download_input(6, 2023, test=False).splitlines()
+
+    def part_one():
+        numbers_of_ways_to_win = []
+
+        times = [int(time.strip()) for time in data[0].split(":")[1].strip().split()]
+        distances = [
+            int(distance.strip()) for distance in data[1].split(":")[1].strip().split()
+        ]
+
+        for index, time in enumerate(times):
+            # total time to spare
+            # 1 unit of time  to spare increases boat speed by one per the rest of units
+            number_of_ways_to_win = 0
+            for second in range(time):
+                distance = second * (time - second)
+                if distance > distances[index]:
+                    number_of_ways_to_win += 1
+            numbers_of_ways_to_win.append(number_of_ways_to_win)
+
+        result = 1
+        for x in numbers_of_ways_to_win:
+            result = result * x
+        return result
+
+    def part_two():
+        time = int(data[0].split(":")[1].replace(" ", ""))
+        distance = int(data[1].split(":")[1].replace(" ", ""))
+        logger.info(time)
+        logger.info(distance)
+        # total time to spare
+        # 1 unit of time  to spare increases boat speed by one per the rest of units
+        number_of_ways_to_win = 0
+        for second in range(time):
+            # logger.debug(second)
+            race_distance = second * (time - second)
+            # logger.debug(distance)
+            if race_distance > distance:
+                number_of_ways_to_win += 1
+
+        return number_of_ways_to_win
+
+    # return part_one()
+    return part_two()
+
+
+def day_7():
+    data = download_input(7, 2023).splitlines()
 
     def part_one():
         pass
@@ -448,4 +495,4 @@ def day_6():
 
 
 if __name__ == "__main__":
-    logger.warning(day_5())
+    logger.warning(day_7())
