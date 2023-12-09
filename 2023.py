@@ -482,17 +482,231 @@ def day_6():
 
 
 def day_7():
-    data = download_input(7, 2023).splitlines()
+    data = download_input(7, 2023, test=False).splitlines()
+
+    def card_strength(card: str, use_joker=False) -> int:
+        all_cards = "23456789TJQKA"
+        if use_joker:
+            all_cards = "J" + all_cards.replace("J", "")
+        return all_cards.index(card)
+
+    def get_suite(cards: str, use_joker=False) -> int:
+        all_cards = "23456789TJQKA"
+        possible_suites = []
+
+        for card in all_cards:
+            temp = cards
+            if use_joker:
+                temp = cards.replace("J", card)
+            # five of a kind
+            if len(set(temp)) == 1:
+                possible_suites.append(7)
+
+            # four of a kind or full house
+            if len(set(temp)) == 2:
+                for symbol in set(temp):
+                    if temp.count(symbol) == 4:
+                        possible_suites.append(6)
+                    if temp.count(symbol) == 3:
+                        possible_suites.append(5)
+
+            # three of a kind or two pair
+            if len(set(temp)) == 3:
+                for symbol in set(temp):
+                    if temp.count(symbol) == 3:
+                        possible_suites.append(4)
+                    if temp.count(symbol) == 2:
+                        possible_suites.append(3)
+
+            # one pair
+            if len(set(temp)) == 4:
+                possible_suites.append(2)
+
+            # high card
+            if len(set(temp)) == 5:
+                possible_suites.append(1)
+
+        return max(possible_suites)
 
     def part_one():
-        pass
+        card_scores = []
+        for line in data:
+            cards, bid = line.split()
+            card_suite = get_suite(cards)
+
+            card_strengths = [card_strength(card) for card in cards]
+
+            card_scores.append([card_suite, card_strengths, bid, cards])
+
+        logger.info(pformat(card_scores))
+
+        card_scores = sorted(card_scores, key=lambda x: (x[0], x[1]))
+        logger.info(pformat(card_scores))
+        scores = []
+        for multiplyer, card in enumerate(card_scores):
+            scores.append(int(card[2]) * (multiplyer + 1))
+        return sum(scores)
 
     def part_two():
-        pass
+        card_scores = []
+        for line in data:
+            cards, bid = line.split()
+            card_suite = get_suite(cards, use_joker=True)
 
-    return part_one()
-    # return part_two()
+            card_strengths = [card_strength(card, use_joker=True) for card in cards]
+
+            card_scores.append([card_suite, card_strengths, bid, cards])
+
+        logger.info(pformat(card_scores))
+
+        card_scores = sorted(card_scores, key=lambda x: (x[0], x[1]))
+        logger.info(pformat(card_scores))
+        scores = []
+        for multiplier, card in enumerate(card_scores):
+            scores.append(int(card[2]) * (multiplier + 1))
+        return sum(scores)
+
+    # return part_one()
+    return part_two()
+
+
+def day_8():
+    data = download_input(8, 2023, test=False).splitlines()
+
+    def part_one():
+        directions = data[0]
+        tunnels = data[2:]
+
+        paths = {}
+
+        for tunnel in tunnels:
+            key, values = tunnel.split(" = ")
+            left, right = values.split(", ")
+            if key in paths:
+                logger.info(f"key {key} already in paths")
+
+            paths[key] = [left.replace("(", "").strip(), right.replace(")", "").strip()]
+
+        paths = dict(sorted(paths.items(), key=lambda x: x[0]))
+
+        current_path = "AAA"
+        next_path = ""
+        count_steps = 0
+
+        while current_path != "ZZZ":
+            for direction in directions:
+                if current_path == "ZZZ":
+                    logger.info("Reached the end")
+                    break
+                match direction:
+                    case "L":
+                        next_path = paths[current_path][0]
+                        count_steps += 1
+                    case "R":
+                        next_path = paths[current_path][1]
+                        count_steps += 1
+                    case _:
+                        raise ValueError(f"Unknown direction {direction}")
+
+                logger.info(
+                    f"current path: {current_path} direction: {direction} next_path: {next_path}"
+                )
+
+                current_path = next_path
+
+        return count_steps
+
+    from typing import Iterator
+
+    def parse_input(lines: list[str]) -> tuple[str, list]:
+        instructions = lines[0]
+        lines = lines[2:]
+        nodes = {}
+        for line in lines:
+            node_id, neighbors = line.split(" = ")
+            neighbors = neighbors[1:-1].split(", ")
+            nodes[node_id] = tuple(neighbors)
+        return instructions, nodes
+
+    import math
+
+    def lcm(numbers: list[int]) -> int:
+        if len(numbers) == 2:
+            return numbers[0] * numbers[1] // math.gcd(numbers[0], numbers[1])
+        return lcm([numbers[0], lcm(numbers[1:])])
+
+    import itertools
+
+    def find_cycle(instructions: str, nodes: list, start: str) -> int:
+        step1 = start
+        step2 = start
+        input_period = len(instructions)
+        instructions1 = itertools.cycle(instructions)
+        instructions2 = itertools.cycle(instructions)
+        print()
+        for i, instruction1 in enumerate(instructions1, start=1):
+            step1 = nodes[step1][instruction1 == "R"]
+            step2 = nodes[step2][next(instructions2) == "R"]
+            if step1 == step2 and i % input_period == (i * 2) % input_period:
+                logger.info(f"Found cycle of length {i}")
+                return i
+
+    def part_two():
+        directions = data[0]
+        tunnels = data[2:]
+
+        paths = {}
+
+        for tunnel in tunnels:
+            key, values = tunnel.split(" = ")
+            left, right = values.split(", ")
+            if key in paths:
+                logger.info(f"key {key} already in paths")
+
+            paths[key] = [left.replace("(", "").strip(), right.replace(")", "").strip()]
+
+        paths = dict(sorted(paths.items(), key=lambda x: x[0]))
+
+        directions, nodes = parse_input(data)
+        logger.info(nodes)
+        periods = [find_cycle(directions, nodes, ghost) for ghost in paths]
+        return lcm(periods)
+        # count_steps = 0
+        # time_to_stop = False
+
+        # while not time_to_stop:
+        #     for direction in directions:
+        #         for node in nodes:
+        #             if node[-1] != "Z":
+        #                 break
+        #         else:
+        #             logger.info("Reached the end")
+        #             time_to_stop = True
+        #             break
+
+        #         count_steps += 1
+        #         next_steps = []
+
+        #         for node in nodes:
+        #             if direction == "L":
+        #                 next_step = paths[node][0]
+
+        #             elif direction == "R":
+        #                 next_step = paths[node][1]
+
+        #             next_steps.append(next_step)
+
+        #             # logger.info(
+        #             #     f"current: {node} direction: {direction} next_path: {next_step}"
+        #             # )
+
+        #         nodes = next_steps
+
+        # return count_steps
+
+    # return part_one()
+    return part_two()
 
 
 if __name__ == "__main__":
-    logger.warning(day_7())
+    logger.warning(day_8())
