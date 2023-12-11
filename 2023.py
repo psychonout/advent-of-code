@@ -708,5 +708,158 @@ def day_8():
     return part_two()
 
 
+def day_9():
+    data = download_input(9, 2023, test=False).splitlines()
+
+    def get_difference(a: int, b: int) -> int:
+        return a - b
+
+    def part_one():
+        score = 0
+        for sequence in data:
+            sequence = [int(sq) for sq in sequence.split(" ")]
+            logger.error(sequence)
+            sequence_resolved = False
+
+            next_sequence = []
+            sequences = [sequence]
+
+            while not sequence_resolved:
+                for i in range(len(sequence) - 1):
+                    next_sequence.append(get_difference(sequence[i + 1], sequence[i]))
+
+                sequence = next_sequence
+                next_sequence = []
+                sequences.append(sequence)
+
+                logger.warning(sequence)
+
+                if len(set(sequence)) == 1 and sequence[0] == 0:
+                    sequence_resolved = True
+                    value_to_add = sequence[-1]
+                    logger.info(f"Value to add: {value_to_add}")
+                    logger.info(f"Sequences before: {sequences}")
+                    for j in range(len(sequences) - 1, -1, -1):
+                        if value_to_add == 0:
+                            sequences[j].append(sequences[j][-1])
+                        else:
+                            sequences[j].append(sequences[j][-1] + value_to_add)
+                        value_to_add = sequences[j][-1]
+                        if j == 0:
+                            score += value_to_add
+                    logger.success(f"Sequences after: {sequences}")
+        return score
+
+    def part_two():
+        score = 0
+        for sequence in data:
+            sequence = [int(sq) for sq in sequence.split(" ")]
+            logger.error(sequence)
+            sequence_resolved = False
+
+            next_sequence = []
+            sequences = [sequence]
+
+            while not sequence_resolved:
+                for i in range(len(sequence) - 1):
+                    next_sequence.append(get_difference(sequence[i + 1], sequence[i]))
+
+                sequence = next_sequence
+                next_sequence = []
+                sequences.append(sequence)
+
+                logger.warning(sequence)
+
+                if len(set(sequence)) == 1 and sequence[0] == 0:
+                    sequence_resolved = True
+                    value_to_add = sequence[0] * -1
+                    logger.info(f"Value to add: {value_to_add}")
+                    logger.info(f"Sequences before: {sequences}")
+                    for j in range(len(sequences) - 1, -1, -1):
+                        if value_to_add == 0:
+                            sequences[j].insert(0, sequences[j][0])
+                        else:
+                            sequences[j].insert(0, sequences[j][0] + value_to_add)
+                        value_to_add = sequences[j][0] * -1
+                        if j == 0:
+                            score += value_to_add * -1
+                    logger.success(f"Sequences after: {sequences}")
+        return score
+
+    return part_two()
+
+
+def day_10():
+    data = download_input(10, 2023, test=True).splitlines()
+
+    class TileException(Exception):
+        pass
+
+    class Tile:
+        def __init__(self, x: int, y: int, map: list[list[str]]) -> None:
+            self.x = x
+            self.y = y
+            self.tile = list[x][y]
+            self.direction = ""  # "up", "down", "left", "right"
+            self.distance = 0
+
+        def next_cell_at(self) -> tuple[int, int]:
+            match self.tile:
+                case "|":
+                    if self.direction == "up":
+                        return self.x, self.y - 1
+                    if self.direction == "down":
+                        return self.x, self.y + 1
+
+                    raise TileException
+                case "-":
+                    if self.direction == "left":
+                        return self.x - 1, self.y
+                    if self.direction == "right":
+                        return self.x + 1, self.y
+                    raise TileException
+                case "L":
+                    if self.direction == "left":
+                        return self.x, self.y + 1
+                    if self.direction == "right":
+                        return self.x + 1, self.y
+                case "J":
+                    if self.direction == "up":
+                        return self.x, self.y - 1
+                    if self.direction == "down":
+                        return self.x - 1, self.y
+                case "7":
+                    if self.direction == "left":
+                        return self.x, self.y + 1
+                    if self.direction == "down":
+                        return self.x - 1, self.y
+                case "F":
+                    if self.direction == "up":
+                        return self.x + 1, self.y
+                    if self.direction == "down":
+                        return self.x, self.y + 1
+
+        @classmethod
+        def get_tile_at(cls, x: int, y: int, map: list[list[str]]) -> str:
+            return map[x][y]
+
+    def map_as_tiles():
+        array = [list(line.strip()) for line in data.strip().splitlines()]
+        tiles = []
+        for i, row in enumerate(array):
+            for j, value in enumerate(row):
+                tiles.append(Tile(i, j, array)) 
+        return tiles
+
+    def part_one():
+        pass
+
+    def part_two():
+        pass
+
+    return part_one()
+    # return part_two()
+
+
 if __name__ == "__main__":
-    logger.warning(day_8())
+    logger.warning(day_9())
