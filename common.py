@@ -2,17 +2,18 @@ import os
 from typing import Generator
 
 import requests
-from dotenv import load_dotenv
+from loguru import logger
 
-load_dotenv()
+from config import settings
 
 
 def from_file(filename):
     if not os.path.exists(filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         return None
 
     with open(filename, "r", encoding="utf-8") as f:
-        print(f"Returning from file: {filename}")
+        logger.debug(f"Returning from file: {filename}")
         return f.read()
 
 
@@ -23,7 +24,7 @@ def download_input(day: int, year: int) -> str:
         return data
 
     url = f"https://adventofcode.com/{year}/day/{day}/input"
-    cookies = {"session": os.environ["AOC_SESSION"]}
+    cookies = {"session": settings.aoc_session}
 
     response = requests.get(url, cookies=cookies, timeout=5)
 

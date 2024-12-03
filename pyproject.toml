@@ -1,18 +1,12 @@
-[tool.poetry]
+[project]
 name = "advent-of-code"
 version = "0.1.0"
-description = ""
-authors = ["Donatas <donatas.gostautas@gjensidige.no>"]
+description = "Add your description here"
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-requests = "^2.31.0"
-loguru = "^0.7.2"
-ruff = "^0.1.6"
-python-dotenv = "^1.0.0"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.12"
+dependencies = [
+    "loguru>=0.7.2",
+    "pydantic-settings>=2.6.1",
+    "requests>=2.32.3",
+    "ruff>=0.8.1",
+]
