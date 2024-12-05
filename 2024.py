@@ -204,5 +204,38 @@ def day_4():
     logger.success(part_two())
 
 
+def day_5():
+    data = download_input(5, 2024)
+    page_ordering_rules, page_number_updates = data.split("\n\n")
+
+    rules_as_dict = {}
+
+    for rule in page_ordering_rules.splitlines():
+        key, value = [int(item) for item in rule.split("|")]
+        if key not in rules_as_dict:
+            rules_as_dict[key] = []
+
+        rules_as_dict[key].append(value)
+
+    def part_one():
+        for page_number_update in page_number_updates.splitlines():
+            page_numbers = [int(item) for item in page_number_update.split(",")]
+            logger.log("Page numbers: {}", page_numbers)
+            page_numbers = reversed(page_numbers)
+            logger.log("Page numbers: {}", page_numbers)
+            # for index in len(page_numbers):
+            #     if page_numbers[index] in rules_as_dict:
+            # rules look like {1: [2, 3], 2: [4, 5], 3: [6, 7]}
+            # page number we have now must be before the numbers in the list
+            # so maybe we go backwards and then get the number and then see if the number in the list appear before it
+
+            break
+
+    def part_two():
+        pass
+
+    logger.success(part_one())
+
+
 if __name__ == "__main__":
-    day_4()
+    day_5()
