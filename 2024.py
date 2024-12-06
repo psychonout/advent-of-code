@@ -1,5 +1,6 @@
 from pprint import pformat
 
+from icecream import ic
 from loguru import logger
 
 from common import download_input, from_file, get_input
@@ -217,22 +218,55 @@ def day_5():
 
         rules_as_dict[key].append(value)
 
-    def part_one():
-        for page_number_update in page_number_updates.splitlines():
-            page_numbers = [int(item) for item in page_number_update.split(",")]
-            logger.log("Page numbers: {}", page_numbers)
-            page_numbers = reversed(page_numbers)
-            logger.log("Page numbers: {}", page_numbers)
-            # for index in len(page_numbers):
-            #     if page_numbers[index] in rules_as_dict:
-            # rules look like {1: [2, 3], 2: [4, 5], 3: [6, 7]}
-            # page number we have now must be before the numbers in the list
-            # so maybe we go backwards and then get the number and then see if the number in the list appear before it
+    page_number_updates = [
+        [int(item) for item in page_number_update.split(",")] for page_number_update in page_number_updates.splitlines()
+    ]
 
-            break
+    def find_middle(lst):
+        length = len(lst)
+        middle_index = length // 2
+        return lst[middle_index]
+
+    def is_valid(page_number, page_numbers):
+        if page_number not in rules_as_dict:
+            return True
+
+        page_rules = rules_as_dict[page_number]
+        pages_left = page_numbers
+
+        overlap = set(page_rules).intersection(set(pages_left))
+        return not overlap
+
+    def part_one():
+        result = 0
+        for page_numbers in page_number_updates:
+            page_numbers.reverse()
+
+            for index in range(len(page_numbers)):
+                if not is_valid(page_numbers[index], page_numbers[index:]):
+                    break
+            else:
+                page_numbers.reverse()
+                result += find_middle(page_numbers)
+
+        return result
 
     def part_two():
-        pass
+        result = 0
+
+        bad_page_number_updates = []
+
+        for page_numbers in page_number_updates:
+            page_numbers.reverse()
+            for index in range(len(page_numbers)):
+                if not is_valid(page_numbers[index], page_numbers[index:]):
+                    page_numbers.reverse()
+                    bad_page_number_updates.append(page_numbers)
+                    break
+
+
+
+        return result
 
     logger.success(part_one())
 
